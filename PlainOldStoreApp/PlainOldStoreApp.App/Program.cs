@@ -1,5 +1,4 @@
 ﻿using PlainOldStoreApp.App;
-using System;
 using System.Text.RegularExpressions;
 
 namespace PlainOldStoreApp
@@ -41,7 +40,6 @@ namespace PlainOldStoreApp
             }
 
         }
-
         private static void PlaceOrder()
         {
             bool isOrdering = true;
@@ -58,9 +56,17 @@ namespace PlainOldStoreApp
                     case "new customer":
                         Console.WriteLine("Please enter in the customer's email.");
                         string? email = Console.ReadLine()?.Trim();
-                        vaildateEmail(email);
+                        if(string.IsNullOrWhiteSpace(email))
+                        {
+                            break;
+                        }
+                        Tuple<bool, string> emailTuple = Validate.ValidateEmail(email);
+                        if (emailTuple.Item1 == false)
+                        {
+                            break;
+                        }
                         Customer customer = new Customer();
-                        customer.Email = email;
+                        customer.Email = emailTuple.Item2;
                         Console.WriteLine(customer.Email);
                         //Check if email already exists
                         //If email can not be found add new customer
@@ -78,28 +84,6 @@ namespace PlainOldStoreApp
                         break;
                 }
             }
-        }
-
-        private static string vaildateEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email))
-            {
-                Console.WriteLine("Please enter a valid email.");
-                email = Console.ReadLine()?.Trim();
-                return vaildateEmail(email);
-            }
-            string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-            Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
-            Match match = regex.Match(email);
-            if (match.Success)
-            {
-                
-            }
-            else
-            {
-                Console.WriteLine("Please enter a valid email.");
-            }
-            return email;
         }
     }
 }
