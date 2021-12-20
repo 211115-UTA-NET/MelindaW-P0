@@ -8,10 +8,11 @@ namespace PlainOldStoreApp.App
 {
     internal interface ICustomerRepository
     {
-        bool GetCustomerEmail(string email);
+        bool GetCustomerEmail(string? email);
+
+        List<Customer> GetAllCustomer(string? firstName, string? lasName);
         
         bool AddNewCustomer(
-            Guid customerId,
             string? firstName,
             string? lastName,
             string? address1,

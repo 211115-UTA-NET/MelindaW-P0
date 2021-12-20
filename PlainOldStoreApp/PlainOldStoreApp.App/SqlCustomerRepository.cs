@@ -15,7 +15,7 @@ namespace PlainOldStoreApp.App
         {
             _connectionString = connetionString;
         }
-        public bool GetCustomerEmail(string email)
+        public bool GetCustomerEmail(string? email)
         {
             string emailSQL = "";
 
@@ -43,8 +43,37 @@ namespace PlainOldStoreApp.App
             }
             return false;
         }
+
+        public List<Customer> GetAllCustomer(string? firstName, string? lastName)
+        {
+            List<Customer> customers = new();
+            using SqlConnection connection = new(_connectionString);
+            connection.Open();
+            using SqlCommand sqlCommand = new(
+                @"SELECT * FROM Posa.Customer
+                WHERE FirstName = @firstName
+                AND LastName = @lastName", connection);
+            sqlCommand.Parameters.AddWithValue("@firstName", firstName);
+            sqlCommand.Parameters.AddWithValue("@lastName", lastName);
+
+            using SqlDataReader reader = sqlCommand.ExecuteReader();
+
+            while (reader.Read())
+            {
+                customers.Add(new(
+                    reader.GetGuid(0),
+                    reader.GetString(1),
+                    reader.GetString(2),
+                    reader.GetString(3),
+                    reader.GetString(4),
+                    reader.GetString(5),
+                    reader.GetString(6),
+                    reader.GetString(7)));
+            }
+            connection.Close();
+            return customers;
+        }
         public bool AddNewCustomer(
-            Guid customerId,
             string? firstName,
             string? lastName,
             string? address1,            
@@ -59,7 +88,6 @@ namespace PlainOldStoreApp.App
 
             string sqlString = @"INSERT INTO Posa.Customer
                 (
-                    CustomerID,
                     FirstName,
                     LastName,
                     Address1,
@@ -70,7 +98,6 @@ namespace PlainOldStoreApp.App
                 )
                 VALUES
                 (
-                    @customerID,
                     @firstName,
                     @lastName, 
                     @address1,
@@ -81,7 +108,6 @@ namespace PlainOldStoreApp.App
 
             using SqlCommand sqlCommand = new(sqlString, connection);
 
-            sqlCommand.Parameters.AddWithValue("@customerID", customerId);
             sqlCommand.Parameters.AddWithValue("@firstName", firstName);
             sqlCommand.Parameters.AddWithValue("@lastName", lastName);
             sqlCommand.Parameters.AddWithValue("@address1", address1);

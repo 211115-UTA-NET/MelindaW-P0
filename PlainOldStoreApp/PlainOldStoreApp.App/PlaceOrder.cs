@@ -25,76 +25,121 @@ namespace PlainOldStoreApp.App
                 {
                     case "1":
                     case "new customer":
-                        Console.WriteLine("Please enter in the customer's email.");
-                        string? email = Console.ReadLine()?.Trim();
-                        Tuple<bool, string> emailTuple = Validate.ValidateEmail(email);
-                        if (emailTuple.Item1 == false)
+                        string connectionString = File.ReadAllText(
+                                "C:/Users/melin/OneDrive/Desktop/RevGit/MelindaW-P0/waggonerm-posa-db.txt");
+                        string firstName;
+                        string lastName;
+                        string email = "";
+                        Console.WriteLine("Please enter in the customer's name or email.");
+                        string? nameOrEmail = Console.ReadLine()?.Trim();
+                        Tuple<string, string> nameOrEmailTuple = Validate.ValidateNameOrEmail(nameOrEmail);
+                        if (nameOrEmailTuple.Item1 == "false")
                         {
                             break;
                         }
-                        string connectionString = File.ReadAllText(
-                            "C:/Users/melin/OneDrive/Desktop/RevGit/MelindaW-P0/waggonerm-posa-db.txt");
                         ICustomerRepository customerRepository = new SqlCustomerRepository(connectionString);
-                        Customer customerLookUp = new Customer(emailTuple.Item2, customerRepository);
-                        bool foundEmail = customerLookUp.LookUpEmail();
-                        if(foundEmail)
+                        if (nameOrEmailTuple.Item1 == "email")
                         {
-                            Console.WriteLine("The email you entered is already associated with an account.");
+                            Customer customerLookUpEmail = new Customer(nameOrEmailTuple.Item2, customerRepository);
+                            bool foundEmail = customerLookUpEmail.LookUpEmail();
+                            if (foundEmail)
+                            {
+                                Console.WriteLine("The email you entered is already associated with an account.");
+                                Console.WriteLine("Please use that account to order");
+                                break;
+                            }
+                            else
+                            {
+                                email = nameOrEmailTuple.Item2.ToUpper();
+                                Console.WriteLine("Please enter first name and last name.");
+                                string? name = Console.ReadLine();
+                                Tuple<string, string> fullname = Validate.VaildateName(name);
+                                if (string.IsNullOrWhiteSpace(fullname.Item1) || string.IsNullOrWhiteSpace(fullname.Item2))
+                                {
+                                    break;
+                                }
+                                firstName = fullname.Item1.ToUpper();
+                                lastName = fullname.Item2.ToUpper();
+                            }
                         }
                         else
                         {
-                            Console.WriteLine("Please enter first name and last name.");
-                            string? name = Console.ReadLine();
-                            Tuple<string, string> fullname = Validate.VaildateName(name);
-                            if (string.IsNullOrWhiteSpace(fullname.Item1) || string.IsNullOrWhiteSpace(fullname.Item2))
+                            Customer customerLookUpName = new Customer(nameOrEmailTuple.Item1, nameOrEmailTuple.Item2, customerRepository);
+                            List<Customer> foundCoustomers = customerLookUpName.LookUpName();
+                            string? emailLookUP;
+                            Tuple<bool, string> emailTuple;
+                            if (foundCoustomers.Count >= 1)
                             {
-                                break;
+                                Console.WriteLine("The name you entered is already associated with an account.");
+                                Console.WriteLine("Please enter email to see if account exists.");
+                                emailLookUP = Console.ReadLine();
+                                emailTuple = Validate.ValidateEmail(emailLookUP);
+                                if(!emailTuple.Item1)
+                                {
+                                    break;
+                                }
+                                foreach (Customer customer in foundCoustomers)
+                                {
+                                    if (customer.Email == emailTuple.Item2)
+                                    {
+                                        Console.WriteLine("Please use account associated with email to order.");
+                                        email = "anEmailWasFound";
+                                        break;
+                                    }
+                                }
+                                if (email == "anEmailWasFound")
+                                {
+                                    break;
+                                }
                             }
-                            string firstName = fullname.Item1.ToUpper() ;
-                            string lastName = fullname.Item2.ToUpper(); ;
-
-                            Console.WriteLine("Please enter address 1.");
-                            string? address1 = Console.ReadLine();
-                            Console.WriteLine("Please enter city.");
-                            string? city = Console.ReadLine();
-                            Console.WriteLine("Please enter state.");
-                            string? state = Console.ReadLine();
-                            Console.WriteLine("Please enter zip code.");
-                            string? zip = Console.ReadLine();
+                            firstName = nameOrEmailTuple.Item1;
+                            lastName = nameOrEmailTuple.Item2;
+                            Console.WriteLine("Please enter an email.");
+                            emailLookUP = Console.ReadLine();
+                            emailTuple = Validate.ValidateEmail(emailLookUP);
+                            email = emailTuple.Item2;
+                        }
+                        Console.WriteLine("Please enter address 1.");
+                        string? address1 = Console.ReadLine();
+                        Console.WriteLine("Please enter city.");
+                        string? city = Console.ReadLine();
+                        Console.WriteLine("Please enter state.");
+                        string? state = Console.ReadLine();
+                        Console.WriteLine("Please enter zip code.");
+                        string? zip = Console.ReadLine();
                             
-                            string address = Validate.ValidateAddress(address1, city, state, zip);
+                        string address = Validate.ValidateAddress(address1, city, state, zip);
                             
-                            if (string.IsNullOrWhiteSpace(address)) { break; }
+                        if (string.IsNullOrWhiteSpace(address)) { break; }
 
-                            address1 = address.Split("\n")[0];
-                            city = address.Split("\n")[1];
-                            state = address.Split("\n")[2];
-                            zip = address.Split("\n")[3] + "-" + address.Split("\n")[4];
+                        address1 = address.Split("\n")[0];
+                        city = address.Split("\n")[1];
+                        state = address.Split("\n")[2];
+                        zip = address.Split("\n")[3] + "-" + address.Split("\n")[4];
 
-                            Console.WriteLine("Please verify that the name, email, and address was entered correctly");
-                            Console.WriteLine($"{firstName} {lastName}\n{address1}\n{city}\n{state}\n{zip}\n{emailTuple.Item2}");
-                            Console.WriteLine("Correct Yes(Y) or No(N)");
-                            string? input = Console.ReadLine()?.ToLower().Trim();
-                            if(input == "n" || input == "no")
-                            {
-                                break;
-                            }
-                            Customer newCustomer = new Customer(
-                                  firstName,
-                                  lastName,
-                                  address1,
-                                  city,
-                                  state,
-                                  zip,
-                                  customerLookUp.Email,
-                                  customerRepository);
-                            bool isAdd = newCustomer.AddCustomer();
-                            if (isAdd == false)
-                            { 
-                                Console.WriteLine("Something went wrong.");
-                                Console.WriteLine("The customer was not added.");
-                                break;
-                            }
+                        Console.WriteLine("Please verify that the name, email, and address was entered correctly");
+                        Console.WriteLine($"{firstName} {lastName}\n{address1}\n{city}\n{state}\n{zip}\n{email}");
+                        Console.WriteLine("Correct Yes(Y) or No(N)");
+                        string? input = Console.ReadLine()?.ToLower().Trim();
+                        if(input == "n" || input == "no")
+                        {
+                            break;
+                        }
+                        Customer newCustomer = new Customer(
+                                firstName,
+                                lastName,
+                                address1,
+                                city,
+                                state,
+                                zip,
+                                email,
+                                customerRepository);
+                        bool isAdd = newCustomer.AddCustomer();
+                        if (isAdd == false)
+                        { 
+                            Console.WriteLine("Something went wrong.");
+                            Console.WriteLine("The customer was not added.");
+                            break;
                         }
                         IStoreRepository storeRepository = new SqlStoreRepository(connectionString);
                         Store store = new Store(storeRepository);

@@ -11,6 +11,52 @@ namespace PlainOldStoreApp.App
 {
     internal class Validate
     {
+        internal static Tuple<string, string> ValidateNameOrEmail(string? nameOrEmail)
+        {
+            string? tryAgain;
+            if (string.IsNullOrWhiteSpace(nameOrEmail))
+            {
+                Console.WriteLine("You did not enter in a full name or email.");
+                Console.WriteLine("Would you like to try again?");
+                Console.WriteLine("Yes(Y) or No(N)?");
+                tryAgain = Console.ReadLine()?.Trim().ToLower();
+                if (tryAgain == "yes" || tryAgain == "y")
+                {
+                    Console.WriteLine("Please enter full name or email.");
+                    nameOrEmail = Console.ReadLine()?.Trim();
+                    return ValidateNameOrEmail(nameOrEmail);
+                }
+                return new Tuple<string, string>("false", "");
+            }
+            string patternEmail = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            Regex regexEmail = new Regex(patternEmail, RegexOptions.IgnoreCase);
+            Match matchEmail = regexEmail.Match(nameOrEmail);
+
+            string patternName = @"^[a-z]+[\w\s]+[a-z]+$";
+            Regex regexName = new Regex(patternName, RegexOptions.IgnoreCase);
+            Match matchName = regexName.Match(nameOrEmail);
+            if (matchEmail.Success)
+            {
+                return new Tuple<string, string>("email", nameOrEmail.ToUpper());
+            }
+            if (matchName.Success)
+            {
+                string firstName = nameOrEmail.Split(' ')[0];
+                string lastName = nameOrEmail.Split(' ')[1];
+                return new Tuple<string, string>(firstName.ToUpper(), lastName.ToUpper());
+            }
+            Console.WriteLine("You did not enter in a name full or email.");
+            Console.WriteLine("Would you like to try again?");
+            Console.WriteLine("Yes(Y) or No(N)?");
+            tryAgain = Console.ReadLine()?.Trim().ToLower();
+            if (tryAgain == "yes" || tryAgain == "y")
+            {
+                Console.WriteLine("Please enter your full name or email.");
+                nameOrEmail = Console.ReadLine()?.Trim();
+                return ValidateNameOrEmail(nameOrEmail);
+            }
+            return new Tuple<string, string>("false", nameOrEmail);
+        }
         internal static Tuple<bool, string> ValidateEmail(string? email)
         {
             string? tryAgain;
