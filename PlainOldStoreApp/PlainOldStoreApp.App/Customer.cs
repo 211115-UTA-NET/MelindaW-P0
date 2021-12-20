@@ -17,7 +17,6 @@ namespace PlainOldStoreApp.App
         internal string? ZipCode { get; }
         internal string Email { get; }
         
-
         private readonly ICustomerRepository _customerRepository;
 
         internal Customer (string email, ICustomerRepository customerRepository)

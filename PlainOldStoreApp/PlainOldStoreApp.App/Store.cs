@@ -8,11 +8,29 @@ namespace PlainOldStoreApp.App
 {
     internal class Store
     {
-        internal int StoreId { get; set; }
-        internal string StoreName { get; set; }
-        internal string StoreAddress { get; set; }
-        internal string StoreCity { get; set; }
-        internal string StoreState { get; set; }
-        internal int StoreZipCode { get; set; }
+        private Dictionary<int, string> _stores = new Dictionary<int, string>();
+
+        internal string GetStore(int key)
+        {
+            string value = "";
+            if (_stores.ContainsKey(key))
+            {
+                value = _stores[key];
+            }
+            return value;
+        }
+
+        private readonly IStoreRepository _storeRepository;
+
+        internal Store(IStoreRepository storeRepository)
+        {
+            _storeRepository = storeRepository;
+        }
+
+        internal Dictionary<int,string> GetStoresFromDatabase()
+        {
+           _stores = _storeRepository.RetriveStores();
+            return _stores;
+        }
     }
 }

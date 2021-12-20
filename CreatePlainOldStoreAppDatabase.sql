@@ -1,6 +1,7 @@
 --DROP TABLE Posa.Customer;
---DROP TABLE Posa.CustomerOrders;
+--DROP TABLE Posa.Stores;
 --DROP TABLE Posa.Products;
+--DROP TABLE Posa.CustomerOrders;
 --DROP SCHEMA Posa;
 
 CREATE SCHEMA Posa;
@@ -60,7 +61,19 @@ VALUES
 	(3, 'Plain Old Jean Shorts', 'Cotten Blue Jean Shorts', 12.99, 100, 1),
 	(4, 'Plain Old Long Sleeve Button-Down Shirt', 'White Cotten Long Sleeve Shrit', 19.99, 100, 1),
 	(5, 'Plain Old Dress', 'Black Cotten T-Shirt Dress', 19.99, 100, 1),
-	(6, 'Plain Old Shoes', 'Black', 39.99, 100, 1);
+	(6, 'Plain Old Shoes', 'Black', 39.99, 100, 1),
+	(7, 'Plain Old Shoes', 'White', 39.99, 100, 2);
+
+INSERT INTO Posa.Stores
+(
+	StoreID,
+	StoreCity
+)
+VALUES
+	(1, 'Mountin View'),
+	(2, 'San Jose');
 
 SELECT * FROM Posa.Customer;
+SELECT * FROM Posa.Stores;
 SELECT * FROM Posa.Products;
+SELECT * FROM Posa.CustomerOrders;
