@@ -91,13 +91,17 @@ namespace PlainOldStoreApp.App
                                 {
                                     break;
                                 }
+                                email = emailTuple.Item2;
                             }
                             firstName = nameOrEmailTuple.Item1;
                             lastName = nameOrEmailTuple.Item2;
-                            Console.WriteLine("Please enter an email.");
-                            emailLookUP = Console.ReadLine();
-                            emailTuple = Validate.ValidateEmail(emailLookUP);
-                            email = emailTuple.Item2;
+                            if(email == "")
+                            {
+                                Console.WriteLine("Please enter an email.");
+                                emailLookUP = Console.ReadLine();
+                                emailTuple = Validate.ValidateEmail(emailLookUP);
+                                email = emailTuple.Item2;
+                            }                            
                         }
                         Console.WriteLine("Please enter address 1.");
                         string? address1 = Console.ReadLine();
@@ -134,13 +138,9 @@ namespace PlainOldStoreApp.App
                                 zip,
                                 email,
                                 customerRepository);
-                        bool isAdd = newCustomer.AddCustomer();
-                        if (isAdd == false)
-                        { 
-                            Console.WriteLine("Something went wrong.");
-                            Console.WriteLine("The customer was not added.");
-                            break;
-                        }
+
+                        Guid customerId = newCustomer.AddCustomer();
+
                         IStoreRepository storeRepository = new SqlStoreRepository(connectionString);
                         Store store = new Store(storeRepository);
                         Dictionary<int, string> stores = store.GetStoresFromDatabase();
@@ -170,8 +170,9 @@ namespace PlainOldStoreApp.App
                         List<Product> amountOfProductsOrdered = new List<Product>();
                         while (isOrderingProducts)
                         {
-                            Console.WriteLine($"Please select the item number for the item you would like to buy from our {store.GetStore(products.StoreID)}.");
+                            Console.WriteLine($"Please select the item number for the item you would like to buy from our {store.GetStore(products.StoreID)} location.");
                             Console.WriteLine($"Item Number\tProduct Name\tProduct Description\tProduct Price\tAmount Available");
+                            
                             foreach (Product product in allStoreProducts)
                             {
                                 Console.WriteLine($"{product.ProductId}. {product.ProductName}\t\t{product.ProductDescription}\t\t${product.ProductPrice}\t{product.ProductQuantiy}");
@@ -182,7 +183,7 @@ namespace PlainOldStoreApp.App
                             while (!isInt)
                             {
                                 isInt = int.TryParse(Console.ReadLine(), out itemSelection);
-                                if (isInt == false || itemSelection < 0 || itemSelection > numberOfProducts)
+                                if (isInt == false || itemSelection < 1 || itemSelection > numberOfProducts)
                                 {
                                     Console.WriteLine("Invalid input.");
                                     Console.WriteLine("Please choose an item number.");
@@ -203,33 +204,80 @@ namespace PlainOldStoreApp.App
                             while (!isInt)
                             {
                                 isInt = int.TryParse(Console.ReadLine(), out productAmount);
-                                if (isInt == false || productAmount <= 0 || productAmount > 5)
+                                if (isInt == false || productAmount < 1 || productAmount > 5)
                                 {
                                     Console.WriteLine("Invalid input.");
-                                    Console.WriteLine("Please enter a amount between 0 and 5.");
+                                    Console.WriteLine("Please enter a amount between 1 and 5.");
                                     isInt = false;
                                 }
                             }
-                            foreach (Product product in allStoreProducts)
+                            int? sum = 0;
+                            if (amountOfProductsOrdered.Count > 0)
                             {
-                                if (product.ProductId == itemSelection)
+                                foreach (Product product in amountOfProductsOrdered)
                                 {
-                                    amountOfProductsOrdered.Add(new(itemSelection, productName, product.ProductDescription, product.ProductPrice, productAmount, product.StoreID));
+                                    if(product.ProductId == itemSelection)
+                                    {
+                                        sum += product.ProductQuantiy;
+                                    }
                                 }
                             }
-                            Console.WriteLine("You have selected to order");
-                            foreach (Product product in amountOfProductsOrdered)
+                            if ((sum + productAmount) > 5)
                             {
-                                Console.WriteLine($"{product.ProductId}.\t{product.ProductName}\t{product.ProductDescription}\t${product.ProductPrice}\t{product.ProductQuantiy}");
+                                Console.WriteLine("You can not order more than 5 of one item.");
+                            }
+                            else
+                            {
+                                foreach (Product product in allStoreProducts)
+                                {
+                                    if (product.ProductId == itemSelection)
+                                    {
+                                        if (product.ProductQuantiy == 0)
+                                        {
+                                            Console.WriteLine("Out of stock.");
+                                            break;
+                                        }
+                                        while (product.ProductQuantiy < productAmount)
+                                        {
+                                            Console.WriteLine("Not enough inventory to fulfill order.");
+                                            Console.WriteLine("Please reduce order amount.");
+                                            isInt = int.TryParse(Console.ReadLine(), out productAmount);
+                                            if (isInt == false || productAmount < 1 || productAmount > 5)
+                                            {
+                                                Console.WriteLine("Invalid input.");
+                                                Console.WriteLine("Please enter a amount between 1 and 5.");
+                                                isInt = false;
+                                            }
+                                        }
+                                        amountOfProductsOrdered.Add(new(itemSelection, productName, product.ProductDescription, product.ProductPrice, productAmount, product.StoreID));
+                                        product.ProductQuantiy -= productAmount;
+                                    }
+                                }
+                            }
+                            if (amountOfProductsOrdered.Count > 0)
+                            {
+                                Console.WriteLine("You have selected to order:");
+                                foreach (Product product in amountOfProductsOrdered)
+                                {
+                                    Console.WriteLine($"{product.ProductId}.\t{product.ProductName}\t{product.ProductDescription}\t${product.ProductPrice}\t{product.ProductQuantiy}");
+                                }
                             }
                             Console.WriteLine("Would you like to select another item?");
-                            Console.WriteLine("Yes(Y) or NO(N");
+                            Console.WriteLine("Yes(Y) or NO(N)");
                             string? yesOrNO = Console.ReadLine()?.ToLower();
                             if (yesOrNO == "n" || yesOrNO == "no")
                             {
                                 isOrderingProducts = false;
                             }
                         }
+                        IOrderRepository orderRepository = new SqlOrderRepository(connectionString);
+                        Order orders = new Order(orderRepository);
+                        List<Order> ordersMade = new List<Order>();
+                        foreach (Product product in amountOfProductsOrdered)
+                        {
+                            ordersMade.Add(new(product.ProductId, product.ProductPrice, product.ProductQuantiy));
+                        }
+                        List<Order> getOrders = orders.PlaceCustomerOreder(customerId, storeLocation, ordersMade);
                         break;
                     case "2":
                     case "existing customer":

@@ -21,14 +21,16 @@ namespace PlainOldStoreApp.App
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
             using SqlCommand sqlCommand = new(
-                @"SELECT * FROM Posa.Products
-                WHERE StoreID = @storeId", connection);
+                @"SELECT Inventory.ProductID, ProductName, ProductDescription, ProductPrice, Quantity, Inventory.StoreID
+                FROM Posa.Inventory
+                INNER JOIN Posa.Products ON Inventory.ProductID=Products.ProductID
+                WHERE Inventory.StoreID=@storeId;", connection);
             sqlCommand.Parameters.AddWithValue("@storeId", storeLocation);
             using SqlDataReader reader = sqlCommand.ExecuteReader();
             while (reader.Read())
             {
                 products.Add(new(
-                    reader.GetInt32(0), 
+                    reader.GetInt32(0),
                     reader.GetString(1), 
                     reader.GetString(2), 
                     reader.GetDecimal(3),

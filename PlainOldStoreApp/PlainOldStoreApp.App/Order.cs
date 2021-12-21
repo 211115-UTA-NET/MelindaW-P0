@@ -8,12 +8,31 @@ namespace PlainOldStoreApp.App
 {
     internal class Order
     {
-        private int OrderLineID = 0;
-        internal int OrderID { get; set; }
-        internal int StoreID { get; set; }
-        internal Guid CustomerID { get; set; }
-        internal DateTime OrderTime { get; set; }
-        internal int ProductID { get; set; }
-        internal int Quantity { get; set; }
+        internal Guid CustomerId { get; }
+        internal int StoreId { get; }
+        internal decimal OrderTotal { get; }
+        internal int OrdersInvoiceID { get; }
+        internal int? ProductId { get; }
+        internal decimal ProductPrice { get; }
+        internal int? Quantity { get; }
+
+        private readonly IOrderRepository _orderRepository;
+
+        internal Order(IOrderRepository orderRepository)
+        {
+            _orderRepository = orderRepository;
+        }
+        internal Order(int? productId, decimal productPrice, int? quantity)
+        {             
+            ProductId = productId;
+            ProductPrice = productPrice;
+            Quantity = quantity;
+        }
+
+        internal List<Order> PlaceCustomerOreder(Guid customerId, int storeId, List<Order> orders)
+        {
+            List<Order> getOrders = _orderRepository.AddAllOrders(customerId, storeId, orders);
+            return getOrders;
+        }
     }
 }

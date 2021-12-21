@@ -12,10 +12,10 @@ namespace PlainOldStoreApp.App
         internal string? ProductName { get; }
         internal string? ProductDescription { get; }
         internal decimal ProductPrice { get; }
-        internal int? ProductQuantiy { get; }
+        internal int? ProductQuantiy { get; set; }
         internal int StoreID { get; }
 
-        private readonly IProductRepository? _productRepository;
+        private readonly IProductRepository _productRepository;
 
         internal Product(int storeLocation, IProductRepository productRepository)
         {
@@ -34,7 +34,7 @@ namespace PlainOldStoreApp.App
 
         internal List<Product> GetStoreInventory()
         {
-            List<Product> products = _productRepository!.GetAllStoreProducts(StoreID);
+            List<Product> products = _productRepository.GetAllStoreProducts(StoreID);
             return products;
         }
     }

@@ -73,7 +73,7 @@ namespace PlainOldStoreApp.App
             connection.Close();
             return customers;
         }
-        public bool AddNewCustomer(
+        public Guid AddNewCustomer(
             string? firstName,
             string? lastName,
             string? address1,            
@@ -116,10 +116,26 @@ namespace PlainOldStoreApp.App
             sqlCommand.Parameters.AddWithValue("@zip", zip);
             sqlCommand.Parameters.AddWithValue("@email", email);
 
-            int number = sqlCommand.ExecuteNonQuery();
             connection.Close();
-            if (number == 0) { return false; }
-            return true;
+
+            connection.Open();
+
+            using SqlCommand sqlCustomerId = new(
+                @"SELECT CustomerID
+                FROM Posa.Customer
+                WHERE Email = @email", connection);
+
+            sqlCustomerId.Parameters.AddWithValue("@email", email);
+            using SqlDataReader reader = sqlCommand.ExecuteReader();
+            Guid customerId = new();
+            while (reader.Read())
+            {
+                customerId = reader.GetGuid(0);
+            }
+
+            connection.Close();
+
+            return customerId;
         }
     }
 }

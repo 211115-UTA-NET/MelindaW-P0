@@ -84,10 +84,10 @@ namespace PlainOldStoreApp.App
             return foundName;
         }
 
-        internal bool AddCustomer()
+        internal Guid AddCustomer()
         {
-            bool isAdd = _customerRepository.AddNewCustomer(FirstName, LastName, Address1, City, State, ZipCode, Email);
-            return isAdd;
+            Guid customerId = _customerRepository.AddNewCustomer(FirstName, LastName, Address1, City, State, ZipCode, Email);
+            return customerId;
         }
     }
 }

@@ -1,6 +1,7 @@
 --DROP TABLE Posa.Customer;
 --DROP TABLE Posa.Stores;
 --DROP TABLE Posa.Products;
+--DROP TABLE Posa.Inventory;
 --DROP TABLE Posa.CustomerOrders;
 --DROP SCHEMA Posa;
 
@@ -30,19 +31,32 @@ CREATE TABLE Posa.Products
 	ProductID INT IDENTITY(1,1) PRIMARY KEY,
 	ProductName NVARCHAR(100) NOT NULL,
 	ProductDescription NVARCHAR(200) NOT NULL,
-	ProductPrice MONEY NOT NULL,
-	ProductQuantiy INT NOT NULL,
-	StoreID INT NOT NULL
+	ProductPrice MONEY NOT NULL
+);
+
+CREATE TABLE Posa.Inventory
+(
+	InventoryId INT IDENTITY(1,1) PRIMARY KEY,
+	StoreID INT NOT NULL,
+	ProductID INT NOT NULL,
+	Quantity INT NOT NULL
+);
+
+CREATE TABLE Posa.OrdersInvoice
+(
+	OrdersInvoiceID INT IDENTITY(1,1) PRIMARY KEY,
+	CustomerID UNIQUEIDENTIFIER NOT NULL,
+	StoreID INT NOT NULL,
+	OrderTime DATETIME NOT NULL,
+	OrderTotal MONEY NOT NULL
 );
 
 CREATE TABLE Posa.CustomerOrders
 (
 	OrderLineID INT IDENTITY(1,1) PRIMARY KEY,
-	OrderID INT NOT NULL,
-	StoreID INT NOT NULL,
-	CustomerID UNIQUEIDENTIFIER NOT NULL,
-	OrderTime DATETIME NOT NULL,
+	OrdersInvoiceID INT NOT NULL,
 	ProductID INT NOT NULL,
+	ProductPrice MONEY Not NULL,
 	Quantity INT NOT NULL
 );
 
@@ -50,18 +64,38 @@ INSERT INTO Posa.Products
 (
 	ProductName,
 	ProductDescription,
-	ProductPrice,
-	ProductQuantiy,
-	StoreID
+	ProductPrice
 )
 VALUES
-	('Plain Old T-Shrit', 'Black Cotten T-Shrit', 9.99, 100, 1),
-	('Plain Old Jeans', 'Cotten Blue Jeans', 19.99, 100, 1),
-	('Plain Old Jean Shorts', 'Cotten Blue Jean Shorts', 12.99, 100, 1),
-	('Plain Old Long Sleeve Button-Down Shirt', 'White Cotten Long Sleeve Shrit', 19.99, 100, 1),
-	('Plain Old Dress', 'Black Cotten T-Shirt Dress', 19.99, 100, 1),
-	('Plain Old Shoes', 'Black', 39.99, 100, 1),
-	('Plain Old Shoes', 'White', 39.99, 100, 2);
+	('Plain Old T-Shirt', 'Black Cotten T-Shirt', 9.99),
+	('Plain Old Jeans', 'Cotten Blue Jeans', 19.99),
+	('Plain Old Jean Shorts', 'Cotten Blue Jean Shorts', 12.99),
+	('Plain Old Long Sleeve Button-Down Shirt', 'White Cotten Long Sleeve Shirt', 19.99),
+	('Plain Old Dress', 'Black Cotten T-Shirt Dress', 19.99),
+	('Plain Old Shoes', 'Black', 39.99),
+	('Plain Old Shoes', 'White', 39.99);
+
+INSERT INTO Posa.Inventory
+(
+	StoreID,
+	ProductID,
+	Quantity
+)
+VALUES
+	(1, 1, 100),
+	(1, 2, 100),
+	(1, 3, 100),
+	(1, 4, 100),
+	(1, 5, 100),
+	(1, 6, 100),
+	(1, 7, 100),
+	(2, 1, 100),
+	(2, 2, 100),
+	(2, 3, 100),
+	(2, 4, 100),
+	(2, 5, 100),
+	(2, 6, 100),
+	(2, 7, 100);
 
 INSERT INTO Posa.Stores
 (
@@ -71,7 +105,9 @@ VALUES
 	('Mountin View'),
 	('San Jose');
 
+
 SELECT * FROM Posa.Customer;
 SELECT * FROM Posa.Stores;
+SELECT * FROM Posa.Inventory;
 SELECT * FROM Posa.Products;
 SELECT * FROM Posa.CustomerOrders;
