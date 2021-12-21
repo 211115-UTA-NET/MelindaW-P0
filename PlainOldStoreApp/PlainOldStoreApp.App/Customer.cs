@@ -84,9 +84,14 @@ namespace PlainOldStoreApp.App
             return foundName;
         }
 
-        internal Guid AddCustomer()
+        internal void AddCustomer()
         {
-            Guid customerId = _customerRepository.AddNewCustomer(FirstName, LastName, Address1, City, State, ZipCode, Email);
+            _customerRepository.AddNewCustomer(FirstName, LastName, Address1, City, State, ZipCode, Email);
+        }
+
+        internal Guid GetCustomerID()
+        {
+            Guid customerId = _customerRepository.SqlGetCustomerId(Email);
             return customerId;
         }
     }

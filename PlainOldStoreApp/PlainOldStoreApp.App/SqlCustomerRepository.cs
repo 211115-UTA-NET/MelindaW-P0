@@ -47,7 +47,7 @@ namespace PlainOldStoreApp.App
         public List<Customer> GetAllCustomer(string? firstName, string? lastName)
         {
             List<Customer> customers = new();
-            using SqlConnection connection = new(_connectionString);
+            using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
             using SqlCommand sqlCommand = new(
                 @"SELECT * FROM Posa.Customer
@@ -73,7 +73,7 @@ namespace PlainOldStoreApp.App
             connection.Close();
             return customers;
         }
-        public Guid AddNewCustomer(
+        public void AddNewCustomer(
             string? firstName,
             string? lastName,
             string? address1,            
@@ -83,9 +83,8 @@ namespace PlainOldStoreApp.App
             string email
             )
         {
-            using SqlConnection connection = new(_connectionString);
+            using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
-
             string sqlString = @"INSERT INTO Posa.Customer
                 (
                     FirstName,
@@ -116,23 +115,31 @@ namespace PlainOldStoreApp.App
             sqlCommand.Parameters.AddWithValue("@zip", zip);
             sqlCommand.Parameters.AddWithValue("@email", email);
 
+            sqlCommand.ExecuteNonQuery();
+
             connection.Close();
 
-            connection.Open();
+            
+            connection.Close();
+        }
 
-            using SqlCommand sqlCustomerId = new(
+        public Guid SqlGetCustomerId(string email)
+        {
+            Guid customerId = new();
+            using SqlConnection connection = new SqlConnection(_connectionString);
+            connection.Open();
+            using SqlCommand sqlCommand = new(
                 @"SELECT CustomerID
                 FROM Posa.Customer
-                WHERE Email = @email", connection);
+                WHERE Email=@email;", connection);
 
-            sqlCustomerId.Parameters.AddWithValue("@email", email);
+            sqlCommand.Parameters.AddWithValue("@email", email);
+
             using SqlDataReader reader = sqlCommand.ExecuteReader();
-            Guid customerId = new();
             while (reader.Read())
             {
                 customerId = reader.GetGuid(0);
             }
-
             connection.Close();
 
             return customerId;

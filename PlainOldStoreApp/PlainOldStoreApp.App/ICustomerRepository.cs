@@ -12,7 +12,7 @@ namespace PlainOldStoreApp.App
 
         List<Customer> GetAllCustomer(string? firstName, string? lasName);
         
-        Guid AddNewCustomer(
+        void AddNewCustomer(
             string? firstName,
             string? lastName,
             string? address1,
@@ -20,5 +20,7 @@ namespace PlainOldStoreApp.App
             string? state,
             string? zip,
             string email);
+
+        Guid SqlGetCustomerId(string email);
     }
 }

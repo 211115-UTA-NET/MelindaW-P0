@@ -16,14 +16,16 @@ namespace PlainOldStoreApp.App
         }
         public List<Order> AddAllOrders(Guid customerId, int storeId, List<Order> orders)
         {
-            using SqlConnection sqlConnection = new(_connectionString);
-
-            decimal orderTotal = 0;
+            decimal? orderTotal = 0;
             foreach (Order order in orders)
             {
-                orderTotal += order.ProductPrice;
+                orderTotal += order.ProductPrice * order.Quantity;
             }
+            Console.WriteLine(orderTotal.ToString());
+            Console.WriteLine(customerId);
+            Console.WriteLine(storeId);
 
+            using SqlConnection sqlConnection = new(_connectionString);
             sqlConnection.Open();
 
             using SqlCommand sqlCommand = new(
@@ -35,22 +37,24 @@ namespace PlainOldStoreApp.App
                 )
                 VALUES
                 (
-                    @customerId
-                    @storeID
+                    @customerId,
+                    @storeID,
                     @orderTotal);", sqlConnection);
 
             sqlCommand.Parameters.AddWithValue("@customerId", customerId);
             sqlCommand.Parameters.AddWithValue("@storeID", storeId);
             sqlCommand.Parameters.AddWithValue("@orderTotal", orderTotal);
 
+            sqlCommand.ExecuteNonQuery();
+
             sqlConnection.Close();
 
             sqlConnection.Open();
             using SqlCommand sqlReadCommand = new(
-                @"SELECT OrdersInvoiceID FROM Posa.OrdesInvoice
+                @"SELECT OrdersInvoiceID FROM Posa.OrdersInvoice
                     WHERE CustomerID = @customerId
                     AND StoreID = @storeID
-                    AND OrderTotal = @orderTotal;");
+                    AND OrderTotal = @orderTotal;", sqlConnection);
 
             sqlReadCommand.Parameters.AddWithValue("@customerId", customerId);
             sqlReadCommand.Parameters.AddWithValue("@storeID", storeId);
@@ -90,6 +94,8 @@ namespace PlainOldStoreApp.App
                 sqlCommandOrders.Parameters.AddWithValue("@productId", order.ProductId);
                 sqlCommandOrders.Parameters.AddWithValue("@productPrice", order.ProductPrice);
                 sqlCommandOrders.Parameters.AddWithValue("@quantity", order.Quantity);
+
+                sqlCommandOrders.ExecuteNonQuery();
             }
 
             sqlConnection.Close();

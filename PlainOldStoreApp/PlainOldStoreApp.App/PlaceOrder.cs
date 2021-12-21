@@ -139,7 +139,10 @@ namespace PlainOldStoreApp.App
                                 email,
                                 customerRepository);
 
-                        Guid customerId = newCustomer.AddCustomer();
+                        newCustomer.AddCustomer();
+
+                        Customer getCustomerID = new Customer(email, customerRepository);
+                        Guid customerId = getCustomerID.GetCustomerID();
 
                         IStoreRepository storeRepository = new SqlStoreRepository(connectionString);
                         Store store = new Store(storeRepository);
