@@ -100,6 +100,26 @@ namespace PlainOldStoreApp.App
 
             sqlConnection.Close();
 
+            string sqlUpdateString =
+                @"UPDATE Posa.Inventory
+                SET Quantity = (Quantity - @quantity)
+                WHERE StoreID=@storeID
+                AND ProductID=@ProductId;";
+
+            sqlConnection.Open();
+
+            foreach (Order order in orders)
+            {
+                using SqlCommand sqlUpdateCommand = new(sqlUpdateString, sqlConnection);
+
+                sqlUpdateCommand.Parameters.AddWithValue("@quantity", order.Quantity);
+                sqlUpdateCommand.Parameters.AddWithValue("@storeID", storeId);
+                sqlUpdateCommand.Parameters.AddWithValue("@ProductId", order.ProductId);
+
+                sqlUpdateCommand.ExecuteNonQuery();
+            }
+
+
             throw new NotImplementedException();
         }
     }

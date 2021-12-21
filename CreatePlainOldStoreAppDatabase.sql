@@ -3,6 +3,7 @@
 --DROP TABLE Posa.Products;
 --DROP TABLE Posa.Inventory;
 --DROP TABLE Posa.CustomerOrders;
+--DROP TABLE Posa.OrdersInvoice;
 --DROP SCHEMA Posa;
 
 CREATE SCHEMA Posa;
@@ -47,14 +48,14 @@ CREATE TABLE Posa.OrdersInvoice
 	OrdersInvoiceID INT IDENTITY(1,1) PRIMARY KEY,
 	CustomerID UNIQUEIDENTIFIER NOT NULL,
 	StoreID INT NOT NULL,
-	OrderTime DATETIME NOT NULL,
+	OrderTime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	OrderTotal MONEY NOT NULL
 );
 
 CREATE TABLE Posa.CustomerOrders
 (
 	OrderLineID INT IDENTITY(1,1) PRIMARY KEY,
-	OrdersInvoiceID INT NOT NULL,
+	OrdersInvoiceID INT NULL,
 	ProductID INT NOT NULL,
 	ProductPrice MONEY Not NULL,
 	Quantity INT NOT NULL
@@ -111,3 +112,4 @@ SELECT * FROM Posa.Stores;
 SELECT * FROM Posa.Inventory;
 SELECT * FROM Posa.Products;
 SELECT * FROM Posa.CustomerOrders;
+SELECT * FROM Posa.OrdersInvoice;
