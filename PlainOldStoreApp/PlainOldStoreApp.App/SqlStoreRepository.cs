@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data.SqlClient;
 
 namespace PlainOldStoreApp.App
 {
@@ -16,22 +11,35 @@ namespace PlainOldStoreApp.App
             _connectionString = connectionString;
         }
 
+        /// <summary>
+        /// Queries the PosaDatabase and returns a list of stores
+        /// </summary>
+        /// <returns>Dictionary<int, string></int></returns>
         public Dictionary<int, string> RetriveStores()
         {
             Dictionary<int, string> stores = new Dictionary<int, string>();
             using SqlConnection connection = new SqlConnection(_connectionString);
-            connection.Open();
+            
 
             using SqlCommand sqlCommand = new(@"SELECT * FROM Posa.Stores", connection);
-            
-            using SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
-
-            while (sqlDataReader.Read())
+            try
             {
-                stores.Add(sqlDataReader.GetInt32(0), sqlDataReader.GetString(1));
-            }
+                connection.Open();
+                using SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
 
-            connection.Close();
+                while (sqlDataReader.Read())
+                {
+                    stores.Add(sqlDataReader.GetInt32(0), sqlDataReader.GetString(1));
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                connection.Close();
+            }
             return stores;
         }
     }

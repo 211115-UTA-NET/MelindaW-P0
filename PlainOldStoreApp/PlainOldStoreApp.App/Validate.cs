@@ -11,51 +11,61 @@ namespace PlainOldStoreApp.App
 {
     internal class Validate
     {
-        internal static Tuple<string, string> ValidateNameOrEmail(string? nameOrEmail)
+        internal static Tuple<string, string> ValidateNameOrEmail()
         {
             string? tryAgain;
-            if (string.IsNullOrWhiteSpace(nameOrEmail))
+            bool isValidating = true;
+            Console.WriteLine("Please enter in the customer's name or email.");
+            string? nameOrEmail = Console.ReadLine()?.Trim();
+            Console.WriteLine();
+            while (isValidating)
             {
-                Console.WriteLine("You did not enter in a full name or email.");
+                if (string.IsNullOrWhiteSpace(nameOrEmail))
+                {
+                    Console.WriteLine("You did not enter in a full name or email.");
+                    Console.WriteLine("Would you like to try again?");
+                    Console.WriteLine("Yes(Y) or No(N)?");
+                    tryAgain = Console.ReadLine()?.Trim().ToLower();
+                    Console.WriteLine();
+                    if (tryAgain == "no" || tryAgain == "n")
+                    {
+                        return new Tuple<string, string>("false", "");
+                    }
+                    Console.WriteLine("Please enter full name or email.");
+                    nameOrEmail = Console.ReadLine()?.Trim();
+                    Console.WriteLine();
+                }
+                string patternEmail = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+                Regex regexEmail = new Regex(patternEmail, RegexOptions.IgnoreCase);
+                Match matchEmail = regexEmail.Match(nameOrEmail);
+
+                string patternName = @"^[a-z]+[\w\s]+[a-z]+$";
+                Regex regexName = new Regex(patternName, RegexOptions.IgnoreCase);
+                Match matchName = regexName.Match(nameOrEmail);
+                if (matchEmail.Success)
+                {
+                    return new Tuple<string, string>("email", nameOrEmail.ToUpper());
+                }
+                if (matchName.Success)
+                {
+                    string firstName = nameOrEmail.Split(' ')[0];
+                    string lastName = nameOrEmail.Split(' ')[1];
+                    return new Tuple<string, string>(firstName.ToUpper(), lastName.ToUpper());
+                }
+                Console.WriteLine("You did not enter in a name full or email.");
                 Console.WriteLine("Would you like to try again?");
                 Console.WriteLine("Yes(Y) or No(N)?");
                 tryAgain = Console.ReadLine()?.Trim().ToLower();
+                Console.WriteLine();
                 if (tryAgain == "yes" || tryAgain == "y")
                 {
-                    Console.WriteLine("Please enter full name or email.");
-                    nameOrEmail = Console.ReadLine()?.Trim();
-                    return ValidateNameOrEmail(nameOrEmail);
+                    return new Tuple<string, string>("false", "");
                 }
-                return new Tuple<string, string>("false", "");
-            }
-            string patternEmail = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-            Regex regexEmail = new Regex(patternEmail, RegexOptions.IgnoreCase);
-            Match matchEmail = regexEmail.Match(nameOrEmail);
-
-            string patternName = @"^[a-z]+[\w\s]+[a-z]+$";
-            Regex regexName = new Regex(patternName, RegexOptions.IgnoreCase);
-            Match matchName = regexName.Match(nameOrEmail);
-            if (matchEmail.Success)
-            {
-                return new Tuple<string, string>("email", nameOrEmail.ToUpper());
-            }
-            if (matchName.Success)
-            {
-                string firstName = nameOrEmail.Split(' ')[0];
-                string lastName = nameOrEmail.Split(' ')[1];
-                return new Tuple<string, string>(firstName.ToUpper(), lastName.ToUpper());
-            }
-            Console.WriteLine("You did not enter in a name full or email.");
-            Console.WriteLine("Would you like to try again?");
-            Console.WriteLine("Yes(Y) or No(N)?");
-            tryAgain = Console.ReadLine()?.Trim().ToLower();
-            if (tryAgain == "yes" || tryAgain == "y")
-            {
                 Console.WriteLine("Please enter your full name or email.");
                 nameOrEmail = Console.ReadLine()?.Trim();
-                return ValidateNameOrEmail(nameOrEmail);
+                Console.WriteLine();
             }
-            return new Tuple<string, string>("false", nameOrEmail);
+            return new Tuple<string, string>("false", "");
         }
         internal static Tuple<bool, string> ValidateEmail(string? email)
         {
@@ -66,10 +76,12 @@ namespace PlainOldStoreApp.App
                 Console.WriteLine("Would you like to try again?");
                 Console.WriteLine("Yes(Y) or No(N)?");
                 tryAgain = Console.ReadLine()?.Trim().ToLower();
+                Console.WriteLine();
                 if (tryAgain == "yes" || tryAgain == "y")
                 {
                     Console.WriteLine("Please enter your email.");
                     email = Console.ReadLine()?.Trim();
+                    Console.WriteLine();
                     return ValidateEmail(email);
                 }
                 return new Tuple<bool, string>(false, "");
@@ -85,10 +97,12 @@ namespace PlainOldStoreApp.App
             Console.WriteLine("Would you like to try again?");
             Console.WriteLine("Yes(Y) or No(N)?");
             tryAgain = Console.ReadLine()?.Trim().ToLower();
+            Console.WriteLine();
             if (tryAgain == "yes" || tryAgain == "y")
             {
                 Console.WriteLine("Please enter your email.");
                 email = Console.ReadLine()?.Trim();
+                Console.WriteLine();
                 return ValidateEmail(email);
             }
             return new Tuple<bool, string>(false, email);
@@ -103,10 +117,12 @@ namespace PlainOldStoreApp.App
                 Console.WriteLine("Would you like to try again?");
                 Console.WriteLine("Yes(Y) or No(N)?");
                 tryAgain = Console.ReadLine()?.Trim();
+                Console.WriteLine();
                 if (tryAgain == "yes" || tryAgain == "y")
                 {
                     Console.WriteLine("Please enter your first name and last name.");
                     name = Console.ReadLine()?.Trim();
+                    Console.WriteLine();
                     return VaildateName(name);
                 }
                 else
@@ -127,10 +143,12 @@ namespace PlainOldStoreApp.App
             Console.WriteLine("Would you like to try again?");
             Console.WriteLine("Yes(Y) or No(N)?");
             tryAgain = Console.ReadLine()?.Trim();
+            Console.WriteLine();
             if (tryAgain == "yes" || tryAgain == "y")
             {
                 Console.WriteLine("Please enter your first name and last name.");
                 name = Console.ReadLine()?.Trim();
+                Console.WriteLine();
                 return VaildateName(name);
             }
             return new Tuple<string, string>("", "");
@@ -174,16 +192,21 @@ namespace PlainOldStoreApp.App
                     Console.WriteLine("Would you like to try again?");
                     Console.WriteLine("Yes(Y) or No(N)?");
                     string? tryAgain = Console.ReadLine()?.Trim();
+                    Console.WriteLine();
                     if (tryAgain == "yes" || tryAgain == "y")
                     {
                         Console.WriteLine("Please enter address 1.");
                         address1 = Console.ReadLine();
+                        Console.WriteLine();
                         Console.WriteLine("Please enter your city.");
                         city = Console.ReadLine();
+                        Console.WriteLine();
                         Console.WriteLine("Please enter your state.");
                         state = Console.ReadLine();
+                        Console.WriteLine();
                         Console.WriteLine("Please enter your zip code.");
                         zip = Console.ReadLine();
+                        Console.WriteLine();
                     }
                     else
                     {

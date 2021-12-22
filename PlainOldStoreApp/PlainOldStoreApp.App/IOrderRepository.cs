@@ -8,6 +8,10 @@ namespace PlainOldStoreApp.App
 {
     internal interface IOrderRepository
     {
-        List<Order> AddAllOrders(Guid customerId, int storeId, List<Order> orders);
+        Tuple<List<Order>, string> AddAllOrders(Guid customerId, int storeId, List<Order> orders);
+
+        List<Order> GetAllStoreOrders(int storeID);
+
+        List<Order> GetAllCoustomerOrders(string firstName, string lastName);
     }
 }

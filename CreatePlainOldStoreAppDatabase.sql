@@ -21,6 +21,8 @@ CREATE TABLE Posa.Customer
     Email NVARCHAR(250) NOT NULL
 );
 
+
+
 Create Table Posa.Stores
 (
 	StoreID INT IDENTITY(1,1) PRIMARY KEY,
@@ -35,18 +37,19 @@ CREATE TABLE Posa.Products
 	ProductPrice MONEY NOT NULL
 );
 
+
 CREATE TABLE Posa.Inventory
 (
 	InventoryId INT IDENTITY(1,1) PRIMARY KEY,
-	StoreID INT NOT NULL,
-	ProductID INT NOT NULL,
+	StoreID INT FOREIGN KEY REFERENCES Posa.Stores(StoreID) NOT NULL,
+	ProductID INT FOREIGN KEY REFERENCES Posa.Products(ProductID) NOT NULL,
 	Quantity INT NOT NULL
 );
 
 CREATE TABLE Posa.OrdersInvoice
 (
 	OrdersInvoiceID INT IDENTITY(1,1) PRIMARY KEY,
-	CustomerID UNIQUEIDENTIFIER NOT NULL,
+	CustomerID UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Posa.Customer(CustomerID) NOT NULL,
 	StoreID INT NOT NULL,
 	OrderTime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	OrderTotal MONEY NOT NULL
@@ -55,11 +58,12 @@ CREATE TABLE Posa.OrdersInvoice
 CREATE TABLE Posa.CustomerOrders
 (
 	OrderLineID INT IDENTITY(1,1) PRIMARY KEY,
-	OrdersInvoiceID INT NULL,
-	ProductID INT NOT NULL,
+	OrdersInvoiceID INT FOREIGN KEY REFERENCES Posa.OrdersiNvoice(OrdersInvoiceID) NOT NULL,
+	ProductID INT FOREIGN KEY REFERENCES Posa.Products(ProductID) NOT NULL,
 	ProductPrice MONEY Not NULL,
 	Quantity INT NOT NULL
 );
+
 
 INSERT INTO Posa.Products
 (
@@ -68,7 +72,7 @@ INSERT INTO Posa.Products
 	ProductPrice
 )
 VALUES
-	('Plain Old T-Shirt', 'Black Cotten T-Shirt', 9.99),
+	('Plain Old T-Shirt', 'Black Cotten T-Shirt', 12.99),
 	('Plain Old Jeans', 'Cotten Blue Jeans', 19.99),
 	('Plain Old Jean Shorts', 'Cotten Blue Jean Shorts', 12.99),
 	('Plain Old Long Sleeve Button-Down Shirt', 'White Cotten Long Sleeve Shirt', 19.99),

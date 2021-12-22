@@ -12,7 +12,7 @@ namespace PlainOldStoreApp.App
 
         List<Customer> GetAllCustomer(string? firstName, string? lasName);
         
-        void AddNewCustomer(
+        internal bool AddNewCustomer(
             string? firstName,
             string? lastName,
             string? address1,
